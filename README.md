@@ -18,6 +18,10 @@ Apps Script 프로젝트가 만들어집니다. 이후 스프레드시트 ID를 
 Apps Script 편집기(확장 프로그램 > Apps Script) 또는 `clasp open-script` 후
 프로젝트 설정 > 스크립트 속성에서 `SPREADSHEET_ID` 값을 등록하세요.
 
+xlsx 업로드 기능은 Advanced Drive Service(v3)를 사용합니다. `clasp push`로
+`appsscript.json`의 `enabledAdvancedServices`가 반영되면 별도 설정 없이 동작해야 하지만,
+안 될 경우 Apps Script 편집기 좌측 "서비스(Services)"에서 Drive API를 직접 추가하세요.
+
 ## 코드 push
 
 ```
@@ -28,12 +32,16 @@ npm run push
 
 ```
 src/
-  appsscript.json      GAS 매니페스트 (webapp 설정)
+  appsscript.json      GAS 매니페스트 (webapp 설정, Advanced Drive Service)
   Code.js              doGet 라우팅
   Auth.js              로그인 처리 (미구현 - 로그인 방식 확정 필요)
-  SheetService.js       스프레드시트 접근 헬퍼
+  SheetService.js       스프레드시트 접근 헬퍼 (ensureSheet, findRowByValue 등)
+  Preprocess.js        ERP xlsx 행 파싱/마스킹 로직 (Node에서도 테스트 가능)
+  Upload.js            xlsx 업로드 → 임시 구글시트 변환 → EmployeeMaster/WageRecords 저장
   UserLogin.html        사용자 로그인 화면
   AdminLogin.html        어드민 로그인 화면
   UserDashboard.html    사용자 - 노무비 적정성 확인
-  AdminDashboard.html   어드민 - 노임 추이
+  AdminDashboard.html   어드민 - 노임 추이, 데이터 업로드 버튼
+test/
+  preprocess.test.js    Preprocess.js 단위 테스트 (npm test)
 ```

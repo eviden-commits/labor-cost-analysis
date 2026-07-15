@@ -23,8 +23,43 @@
     </div>
     <div class="card">
       <h2 style="font-size:15px;">데이터 전처리 업로드</h2>
-      <p>ERP xlsx 업로드 → 마스킹 → 시트 저장 기능 예정</p>
+      <input type="file" id="file" accept=".xlsx">
+      <button id="uploadBtn" onclick="upload()">업로드</button>
+      <div id="uploadMsg" style="margin-top:8px;font-size:13px;"></div>
     </div>
   </main>
+  <script>
+    function upload() {
+      var input = document.getElementById('file');
+      var file = input.files[0];
+      var msg = document.getElementById('uploadMsg');
+      if (!file) {
+        msg.style.color = '#d33';
+        msg.innerText = '파일을 선택해주세요.';
+        return;
+      }
+      msg.style.color = '#333';
+      msg.innerText = '업로드 중...';
+      document.getElementById('uploadBtn').disabled = true;
+
+      var reader = new FileReader();
+      reader.onload = function () {
+        var base64 = reader.result.split(',')[1];
+        google.script.run
+          .withSuccessHandler(function (result) {
+            msg.style.color = '#080';
+            msg.innerText = result.count + '건 처리 완료 (배치 ' + result.batchId + ')';
+            document.getElementById('uploadBtn').disabled = false;
+          })
+          .withFailureHandler(function (err) {
+            msg.style.color = '#d33';
+            msg.innerText = '오류: ' + err.message;
+            document.getElementById('uploadBtn').disabled = false;
+          })
+          .uploadContractFile(base64, file.name, file.type);
+      };
+      reader.readAsDataURL(file);
+    }
+  </script>
 </body>
 </html>

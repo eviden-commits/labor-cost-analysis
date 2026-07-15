@@ -13,3 +13,24 @@ function getSheet(name) {
   }
   return sheet;
 }
+
+function ensureSheet(name, headers) {
+  var ss = getSpreadsheet();
+  var sheet = ss.getSheetByName(name);
+  if (!sheet) {
+    sheet = ss.insertSheet(name);
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+    sheet.setFrozenRows(1);
+  }
+  return sheet;
+}
+
+function findRowByValue(sheet, columnIndex, value) {
+  var data = sheet.getDataRange().getValues();
+  for (var i = 1; i < data.length; i++) {
+    if (String(data[i][columnIndex]) === String(value)) {
+      return i + 1;
+    }
+  }
+  return -1;
+}
