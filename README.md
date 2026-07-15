@@ -12,11 +12,15 @@ npx clasp login
 npx clasp create --type webapp --title "노무비 분석" --rootDir ./src
 ```
 
-`clasp create`를 실행하면 `.clasp.json`이 생성되고 새 Google Sheets(또는 연결할 스프레드시트)와
-Apps Script 프로젝트가 만들어집니다. 이후 스프레드시트 ID를 스크립트 속성에 등록해야 합니다.
+`clasp create`를 실행하면 `.clasp.json`이 생성되고 Apps Script 프로젝트(standalone)가 만들어집니다.
 
-Apps Script 편집기(확장 프로그램 > Apps Script) 또는 `clasp open-script` 후
-프로젝트 설정 > 스크립트 속성에서 `SPREADSHEET_ID` 값을 등록하세요.
+이후 `clasp push`로 코드를 올린 뒤, Apps Script 편집기(확장 프로그램 > Apps Script 또는
+`clasp open-script`)에서 함수 목록 중 `initializeWorkbook`을 선택해 한 번 실행하세요.
+- 최초 실행 시 Google 계정 권한 승인 팝업이 뜹니다 (Drive/Sheets 접근 허용 필요)
+- 실행되면 "노무비 분석 데이터"라는 이름의 새 스프레드시트가 내 구글 드라이브에 자동 생성되고,
+  `EmployeeMaster`/`WageRecords` 시트와 헤더가 자동으로 만들어지며, 스프레드시트 ID가
+  스크립트 속성 `SPREADSHEET_ID`에 자동 저장됩니다 (수동 등록 불필요)
+- 실행 로그(또는 반환값)에 표시되는 URL로 생성된 스프레드시트를 바로 확인할 수 있습니다
 
 xlsx 업로드 기능은 Advanced Drive Service(v3)를 사용합니다. `clasp push`로
 `appsscript.json`의 `enabledAdvancedServices`가 반영되면 별도 설정 없이 동작해야 하지만,
@@ -36,6 +40,7 @@ src/
   Code.js              doGet 라우팅
   Auth.js              로그인 처리 (미구현 - 로그인 방식 확정 필요)
   SheetService.js       스프레드시트 접근 헬퍼 (ensureSheet, findRowByValue 등)
+  Setup.js             initializeWorkbook - 스프레드시트/시트/헤더 최초 자동 생성
   Preprocess.js        ERP xlsx 행 파싱/마스킹 로직 (Node에서도 테스트 가능)
   Upload.js            xlsx 업로드 → 임시 구글시트 변환 → EmployeeMaster/WageRecords 저장
   UserLogin.html        사용자 로그인 화면
