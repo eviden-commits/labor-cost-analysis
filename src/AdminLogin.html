@@ -3,21 +3,27 @@
 <head>
   <base target="_top">
   <meta charset="utf-8">
-  <style>
-    body { font-family: 'Malgun Gothic', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #1e293b; }
-    .box { background: #fff; padding: 40px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); width: 320px; }
-    h1 { font-size: 18px; margin-bottom: 24px; }
-    input { width: 100%; padding: 10px; margin-bottom: 12px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
-    button { width: 100%; padding: 10px; background: #0f172a; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
-    #msg { color: #d33; font-size: 13px; margin-top: 8px; min-height: 16px; }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>노무비 분석 - 관리자</title>
+  <?!= include('Stylesheet'); ?>
 </head>
 <body>
-  <div class="box">
-    <h1>어드민 로그인</h1>
-    <input id="password" type="password" placeholder="비밀번호">
-    <button onclick="submitLogin()">로그인</button>
-    <div id="msg"></div>
+  <div class="login-overlay">
+    <div class="login-box">
+      <div class="brand" style="margin-bottom: 18px">
+        <div class="brand-mark">LC</div>
+        <div>
+          <div class="brand-title">세방테크 노무비 분석 - 관리자</div>
+          <div class="muted" style="font-size: 11px; font-weight: 700">Labor Cost Analysis (Admin)</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>관리자 비밀번호</label>
+        <input type="password" id="password" placeholder="비밀번호 입력">
+      </div>
+      <button class="btn primary" style="width: 100%; margin-top: 14px" onclick="submitLogin()">입장</button>
+      <div id="msg" class="login-error"></div>
+    </div>
   </div>
   <script>
     function submitLogin() {

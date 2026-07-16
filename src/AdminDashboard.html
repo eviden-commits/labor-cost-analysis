@@ -3,39 +3,55 @@
 <head>
   <base target="_top">
   <meta charset="utf-8">
-  <style>
-    body { font-family: 'Malgun Gothic', sans-serif; margin: 0; background: #f5f6f8; }
-    header { background: #0f172a; color: #fff; padding: 16px 24px; }
-    main { padding: 24px; }
-    .card { background: #fff; border-radius: 8px; padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>노무비 분석 - 관리자</title>
+  <?!= include('Stylesheet'); ?>
 </head>
 <body>
-  <header><h1 style="margin:0;font-size:18px;">노임 추이 (어드민)</h1></header>
+  <header>
+    <div class="brand">
+      <div class="brand-mark">LC</div>
+      <div>
+        <div class="brand-title">노임 추이 (관리자)</div>
+        <div class="muted" style="font-size: 11px; font-weight: 700">Labor Cost Analysis (Admin)</div>
+      </div>
+    </div>
+    <div class="top-meta">
+      <button class="btn" onclick="logout()" style="padding: 6px 10px">로그아웃</button>
+    </div>
+  </header>
   <main>
     <div class="card">
-      <h2 style="font-size:15px;">사번별 급여 추적</h2>
-      <p>WageRecords 시트 구조 확정 후 구현 예정</p>
+      <h2 class="section-title">사번별 급여 추적</h2>
+      <p class="muted">디자인 시안 연결 대기 중</p>
     </div>
     <div class="card">
-      <h2 style="font-size:15px;">전체 평균 상승률</h2>
-      <p>데이터 모델 확정 후 구현 예정</p>
+      <h2 class="section-title">전체 평균 상승률</h2>
+      <p class="muted">디자인 시안 연결 대기 중</p>
     </div>
     <div class="card">
-      <h2 style="font-size:15px;">데이터 전처리 업로드</h2>
-      <input type="file" id="file" accept=".xlsx">
-      <button id="uploadBtn" onclick="upload()">업로드</button>
-      <div id="uploadMsg" style="margin-top:8px;font-size:13px;"></div>
+      <h2 class="section-title">데이터 전처리 업로드</h2>
+      <div class="field" style="margin-bottom: 10px;">
+        <input type="file" id="file" accept=".xlsx">
+      </div>
+      <button id="uploadBtn" class="btn primary" onclick="upload()">업로드</button>
+      <div id="uploadMsg" class="login-error"></div>
     </div>
     <div class="card">
-      <h2 style="font-size:15px;">비밀번호 관리</h2>
-      <select id="pwRole" style="width:100%;padding:8px;margin-bottom:8px;">
-        <option value="user">사용자(전사 공용) 비밀번호</option>
-        <option value="admin">어드민 비밀번호</option>
-      </select>
-      <input type="password" id="newPassword" placeholder="새 비밀번호" style="width:100%;padding:8px;margin-bottom:8px;box-sizing:border-box;">
-      <button id="pwBtn" onclick="changePassword()">변경</button>
-      <div id="pwMsg" style="margin-top:8px;font-size:13px;"></div>
+      <h2 class="section-title">비밀번호 관리</h2>
+      <div class="field" style="margin-bottom: 10px;">
+        <label>대상</label>
+        <select id="pwRole">
+          <option value="user">사용자(전사 공용) 비밀번호</option>
+          <option value="admin">어드민 비밀번호</option>
+        </select>
+      </div>
+      <div class="field" style="margin-bottom: 10px;">
+        <label>새 비밀번호</label>
+        <input type="password" id="newPassword" placeholder="새 비밀번호">
+      </div>
+      <button id="pwBtn" class="btn primary" onclick="changePassword()">변경</button>
+      <div id="pwMsg" class="login-error"></div>
     </div>
   </main>
   <script>
@@ -44,16 +60,21 @@
       window.top.location.href = '?page=admin-login';
     }
 
+    function logout() {
+      sessionStorage.clear();
+      window.top.location.href = '?page=admin-login';
+    }
+
     function upload() {
       var input = document.getElementById('file');
       var file = input.files[0];
       var msg = document.getElementById('uploadMsg');
       if (!file) {
-        msg.style.color = '#d33';
+        msg.style.color = '#b91c1c';
         msg.innerText = '파일을 선택해주세요.';
         return;
       }
-      msg.style.color = '#333';
+      msg.style.color = '#0f172a';
       msg.innerText = '업로드 중...';
       document.getElementById('uploadBtn').disabled = true;
 
@@ -62,12 +83,12 @@
         var base64 = reader.result.split(',')[1];
         google.script.run
           .withSuccessHandler(function (result) {
-            msg.style.color = '#080';
+            msg.style.color = '#15803d';
             msg.innerText = result.count + '건 처리 완료 (배치 ' + result.batchId + ')';
             document.getElementById('uploadBtn').disabled = false;
           })
           .withFailureHandler(function (err) {
-            msg.style.color = '#d33';
+            msg.style.color = '#b91c1c';
             msg.innerText = '오류: ' + err.message;
             document.getElementById('uploadBtn').disabled = false;
           })
@@ -81,18 +102,18 @@
       var newPassword = document.getElementById('newPassword').value;
       var msg = document.getElementById('pwMsg');
       if (!newPassword) {
-        msg.style.color = '#d33';
+        msg.style.color = '#b91c1c';
         msg.innerText = '새 비밀번호를 입력해주세요.';
         return;
       }
       google.script.run
         .withSuccessHandler(function () {
-          msg.style.color = '#080';
+          msg.style.color = '#15803d';
           msg.innerText = '변경되었습니다.';
           document.getElementById('newPassword').value = '';
         })
         .withFailureHandler(function (err) {
-          msg.style.color = '#d33';
+          msg.style.color = '#b91c1c';
           msg.innerText = '오류: ' + err.message;
         })
         .setPassword(role, newPassword, sessionToken);
