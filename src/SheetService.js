@@ -24,13 +24,3 @@ function ensureSheet(name, headers) {
   }
   return sheet;
 }
-
-function findRowByValue(sheet, columnIndex, value) {
-  var data = sheet.getDataRange().getValues();
-  for (var i = 1; i < data.length; i++) {
-    if (String(data[i][columnIndex]) === String(value)) {
-      return i + 1;
-    }
-  }
-  return -1;
-}

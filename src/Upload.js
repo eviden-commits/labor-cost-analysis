@@ -6,34 +6,14 @@ function pad2(n) {
   return n < 10 ? '0' + n : String(n);
 }
 
-function upsertEmployeeMaster(record) {
-  var sheet = ensureSheet('EmployeeMaster', EMPLOYEE_MASTER_HEADERS);
-  var rowIndex = findRowByValue(sheet, 0, record.employeeId);
-  var birthDate = record.birthYear + '-' + pad2(record.birthMonth) + '-' + pad2(record.birthDay);
-  var rowValues = [record.employeeId, record.maskedName, birthDate, record.gender, record.jobType];
-  if (rowIndex === -1) {
-    sheet.appendRow(rowValues);
-  } else {
-    sheet.getRange(rowIndex, 1, 1, rowValues.length).setValues([rowValues]);
-  }
+function loadSheetRows_(sheet) {
+  var data = sheet.getDataRange().getValues();
+  return { headers: data[0], rows: data.slice(1) };
 }
 
-function upsertWageRecord(record, batchId) {
-  var sheet = ensureSheet('WageRecords', WAGE_RECORDS_HEADERS);
-  var data = sheet.getDataRange().getValues();
-  var targetRow = -1;
-  for (var i = 1; i < data.length; i++) {
-    if (String(data[i][0]) === record.employeeId && String(data[i][1]) === record.contractYearMonth) {
-      targetRow = i + 1;
-      break;
-    }
-  }
-  var rowValues = [record.employeeId, record.contractYearMonth, record.wageType, record.wage, batchId];
-  if (targetRow === -1) {
-    sheet.appendRow(rowValues);
-  } else {
-    sheet.getRange(targetRow, 1, 1, rowValues.length).setValues([rowValues]);
-  }
+function writeSheetRows_(sheet, headers, rows) {
+  var all = [headers].concat(rows);
+  sheet.getRange(1, 1, all.length, headers.length).setValues(all);
 }
 
 function uploadContractFile(sessionToken, base64Data, filename, mimeType) {
@@ -53,10 +33,40 @@ function uploadContractFile(sessionToken, base64Data, filename, mimeType) {
     var records = parseContractRows(rows, new Date());
     var batchId = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyyMMdd_HHmmss');
 
+    var employeeSheet = ensureSheet('EmployeeMaster', EMPLOYEE_MASTER_HEADERS);
+    var employeeData = loadSheetRows_(employeeSheet);
+    var employeeIndexById = {};
+    employeeData.rows.forEach(function (row, i) { employeeIndexById[row[0]] = i; });
+
+    var wageSheet = ensureSheet('WageRecords', WAGE_RECORDS_HEADERS);
+    var wageData = loadSheetRows_(wageSheet);
+    var wageIndexByKey = {};
+    wageData.rows.forEach(function (row, i) { wageIndexByKey[row[0] + '|' + row[1]] = i; });
+
     records.forEach(function (record) {
-      upsertEmployeeMaster(record);
-      upsertWageRecord(record, batchId);
+      var birthDate = record.birthYear + '-' + pad2(record.birthMonth) + '-' + pad2(record.birthDay);
+      var employeeRow = [record.employeeId, record.maskedName, birthDate, record.gender, record.jobType];
+      var empIndex = employeeIndexById[record.employeeId];
+      if (empIndex === undefined) {
+        employeeIndexById[record.employeeId] = employeeData.rows.length;
+        employeeData.rows.push(employeeRow);
+      } else {
+        employeeData.rows[empIndex] = employeeRow;
+      }
+
+      var wageKey = record.employeeId + '|' + record.contractYearMonth;
+      var wageRow = [record.employeeId, record.contractYearMonth, record.wageType, record.wage, batchId];
+      var wageIndex = wageIndexByKey[wageKey];
+      if (wageIndex === undefined) {
+        wageIndexByKey[wageKey] = wageData.rows.length;
+        wageData.rows.push(wageRow);
+      } else {
+        wageData.rows[wageIndex] = wageRow;
+      }
     });
+
+    writeSheetRows_(employeeSheet, employeeData.headers, employeeData.rows);
+    writeSheetRows_(wageSheet, wageData.headers, wageData.rows);
 
     return { count: records.length, batchId: batchId };
   } finally {
