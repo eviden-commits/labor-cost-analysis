@@ -18,6 +18,7 @@ async function search() {
   const wageType = document.getElementById('wageType').value;
   const gender = document.getElementById('gender').value;
   const ageMode = document.getElementById('ageMode').value;
+  const referenceMonth = document.getElementById('referenceMonth').value;
   const desiredWage = Number(document.getElementById('desiredWage').value);
   const errorBox = document.getElementById('searchError');
   errorBox.innerText = '';
@@ -34,7 +35,8 @@ async function search() {
       gender,
       desiredWage,
       wageType,
-      ageMode
+      ageMode,
+      referenceMonth
     });
 
     if (!res.ok) {
@@ -44,7 +46,7 @@ async function search() {
 
     const data = res.data;
     document.getElementById('resultCard').classList.remove('hidden');
-    document.getElementById('resultTitle').innerText = data.ageLabel + ' · ' + data.genderFilter + ' 비교 결과';
+    document.getElementById('resultTitle').innerText = data.referenceMonth + ' 기준 · ' + data.ageLabel + ' · ' + data.genderFilter + ' 비교 결과';
     document.getElementById('resultCount').innerText = data.peerCount + '명';
     document.getElementById('resultMin').innerText = formatWon(data.min);
     document.getElementById('resultMedian').innerText = formatWon(data.median);

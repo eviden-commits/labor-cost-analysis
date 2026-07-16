@@ -16,4 +16,9 @@ var candidateWindow = stats.ageWindow_(40, 2);
 var peerAge = 39;
 assert.ok(peerAge >= candidateWindow.min && peerAge <= candidateWindow.max);
 
+assert.strictEqual(stats.normalizeYearMonth_('2026-07'), '2026.07');
+assert.strictEqual(stats.normalizeYearMonth_('2026.07'), '2026.07');
+assert.strictEqual(stats.normalizeYearMonth_(''), '');
+assert.strictEqual(stats.normalizeYearMonth_(undefined), '');
+
 console.log('All stats tests passed.');

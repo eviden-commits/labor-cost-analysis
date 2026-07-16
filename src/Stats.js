@@ -18,7 +18,11 @@ function ageWindow_(age, radius) {
   };
 }
 
-function checkWageAppropriateness(sessionToken, birthDate, gender, desiredWage, wageType, ageMode) {
+function normalizeYearMonth_(yearMonth) {
+  return String(yearMonth || '').replace(/-/g, '.');
+}
+
+function checkWageAppropriateness(sessionToken, birthDate, gender, desiredWage, wageType, ageMode, referenceMonth) {
   requireRole(sessionToken, 'user');
 
   var candidateYear = Number(String(birthDate).split('-')[0]);
@@ -40,27 +44,34 @@ function checkWageAppropriateness(sessionToken, birthDate, gender, desiredWage, 
   }
 
   var wageRows = getSheet('WageRecords').getDataRange().getValues();
-  var latestByEmployee = {};
+  var wantedMonth = normalizeYearMonth_(referenceMonth);
+  if (!wantedMonth) {
+    for (var k = 1; k < wageRows.length; k++) {
+      var rowMonth = wageRows[k][1];
+      if (rowMonth && (!wantedMonth || rowMonth > wantedMonth)) {
+        wantedMonth = rowMonth;
+      }
+    }
+  }
+
+  var wageByEmployee = {};
   for (var j = 1; j < wageRows.length; j++) {
     var wEmpId = wageRows[j][0];
     var yearMonth = wageRows[j][1];
     var type = wageRows[j][2];
     var wage = wageRows[j][3];
-    if (!wEmpId || type !== wageType) continue;
-    var existing = latestByEmployee[wEmpId];
-    if (!existing || yearMonth > existing.yearMonth) {
-      latestByEmployee[wEmpId] = { yearMonth: yearMonth, wage: wage };
-    }
+    if (!wEmpId || type !== wageType || yearMonth !== wantedMonth) continue;
+    wageByEmployee[wEmpId] = wage;
   }
 
   var peerWages = [];
-  Object.keys(latestByEmployee).forEach(function (empId) {
+  Object.keys(wageByEmployee).forEach(function (empId) {
     var empBirthYear = birthYearById[empId];
     if (empBirthYear === undefined) return;
     if (genderFilter && genderById[empId] !== genderFilter) return;
     var empAge = referenceYear - empBirthYear;
     if (empAge >= window.min && empAge <= window.max) {
-      peerWages.push(latestByEmployee[empId].wage);
+      peerWages.push(wageByEmployee[empId]);
     }
   });
 
@@ -69,6 +80,7 @@ function checkWageAppropriateness(sessionToken, birthDate, gender, desiredWage, 
   var result = {
     ageLabel: window.label,
     genderFilter: genderFilter || '전체',
+    referenceMonth: wantedMonth || '(데이터 없음)',
     peerCount: peerWages.length,
     min: peerWages.length ? peerWages[0] : null,
     median: median_(peerWages),
@@ -93,5 +105,5 @@ function checkWageAppropriateness(sessionToken, birthDate, gender, desiredWage, 
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { median_: median_, ageWindow_: ageWindow_ };
+  module.exports = { median_: median_, ageWindow_: ageWindow_, normalizeYearMonth_: normalizeYearMonth_ };
 }
