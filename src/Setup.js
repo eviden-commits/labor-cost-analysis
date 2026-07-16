@@ -23,15 +23,30 @@ function initializeWorkbook() {
 
 function initializeCredentials() {
   var props = PropertiesService.getScriptProperties();
+  var result;
 
   if (props.getProperty('ADMIN_PASSWORD_HASH')) {
-    return { initialAdminPassword: '(이미 설정되어 있습니다. 변경하려면 어드민으로 로그인 후 비밀번호 변경 기능을 사용하세요.)' };
+    result = { initialAdminPassword: '(이미 설정되어 있습니다. resetAdminPassword()를 실행해 재발급하세요.)' };
+  } else {
+    var initialAdminPassword = Utilities.getUuid().split('-')[0];
+    var salt = generateSalt();
+    props.setProperty('ADMIN_PASSWORD_SALT', salt);
+    props.setProperty('ADMIN_PASSWORD_HASH', hashPassword(initialAdminPassword, salt));
+    result = { initialAdminPassword: initialAdminPassword };
   }
 
-  var initialAdminPassword = Utilities.getUuid().split('-')[0];
+  console.log(JSON.stringify(result));
+  return result;
+}
+
+function resetAdminPassword() {
+  var props = PropertiesService.getScriptProperties();
+  var newPassword = Utilities.getUuid().split('-')[0];
   var salt = generateSalt();
   props.setProperty('ADMIN_PASSWORD_SALT', salt);
-  props.setProperty('ADMIN_PASSWORD_HASH', hashPassword(initialAdminPassword, salt));
+  props.setProperty('ADMIN_PASSWORD_HASH', hashPassword(newPassword, salt));
 
-  return { initialAdminPassword: initialAdminPassword };
+  var result = { newAdminPassword: newPassword };
+  console.log(JSON.stringify(result));
+  return result;
 }
