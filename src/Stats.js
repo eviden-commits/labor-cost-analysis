@@ -5,10 +5,12 @@ function median_(sortedNumbers) {
   return n % 2 === 0 ? (sortedNumbers[mid - 1] + sortedNumbers[mid]) / 2 : sortedNumbers[mid];
 }
 
-function ageBracket_(birthYear, referenceYear) {
-  var age = referenceYear - birthYear;
-  var start = Math.floor(age / 5) * 5;
-  return { age: age, bracketStart: start, bracketEnd: start + 4, label: start + '-' + (start + 4) + '세' };
+var AGE_WINDOW_RADIUS = 2;
+
+function ageWindow_(age) {
+  var min = age - AGE_WINDOW_RADIUS;
+  var max = age + AGE_WINDOW_RADIUS;
+  return { age: age, min: min, max: max, label: min + '-' + max + '세' };
 }
 
 function checkWageAppropriateness(sessionToken, birthDate, desiredWage, wageType) {
@@ -16,7 +18,8 @@ function checkWageAppropriateness(sessionToken, birthDate, desiredWage, wageType
 
   var candidateYear = Number(String(birthDate).split('-')[0]);
   var referenceYear = new Date().getFullYear();
-  var bracket = ageBracket_(candidateYear, referenceYear);
+  var candidateAge = referenceYear - candidateYear;
+  var window = ageWindow_(candidateAge);
 
   var employeeRows = getSheet('EmployeeMaster').getDataRange().getValues();
   var birthYearById = {};
@@ -45,8 +48,8 @@ function checkWageAppropriateness(sessionToken, birthDate, desiredWage, wageType
   Object.keys(latestByEmployee).forEach(function (empId) {
     var empBirthYear = birthYearById[empId];
     if (empBirthYear === undefined) return;
-    var empBracketStart = ageBracket_(empBirthYear, referenceYear).bracketStart;
-    if (empBracketStart === bracket.bracketStart) {
+    var empAge = referenceYear - empBirthYear;
+    if (empAge >= window.min && empAge <= window.max) {
       peerWages.push(latestByEmployee[empId].wage);
     }
   });
@@ -54,7 +57,7 @@ function checkWageAppropriateness(sessionToken, birthDate, desiredWage, wageType
   peerWages.sort(function (a, b) { return a - b; });
 
   var result = {
-    ageBracket: bracket.label,
+    ageBracket: window.label,
     peerCount: peerWages.length,
     min: peerWages.length ? peerWages[0] : null,
     median: median_(peerWages),
@@ -79,5 +82,5 @@ function checkWageAppropriateness(sessionToken, birthDate, desiredWage, wageType
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { median_: median_, ageBracket_: ageBracket_ };
+  module.exports = { median_: median_, ageWindow_: ageWindow_ };
 }
