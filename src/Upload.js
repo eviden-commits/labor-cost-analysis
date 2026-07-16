@@ -11,8 +11,11 @@ function loadSheetRows_(sheet) {
   return { headers: data[0], rows: data.slice(1) };
 }
 
-function writeSheetRows_(sheet, headers, rows) {
+function writeSheetRows_(sheet, headers, rows, textColumns) {
   var all = [headers].concat(rows);
+  (textColumns || []).forEach(function (colIndex) {
+    sheet.getRange(1, colIndex, all.length, 1).setNumberFormat('@');
+  });
   sheet.getRange(1, 1, all.length, headers.length).setValues(all);
 }
 
@@ -65,8 +68,8 @@ function uploadContractFile(sessionToken, base64Data, filename, mimeType) {
       }
     });
 
-    writeSheetRows_(employeeSheet, employeeData.headers, employeeData.rows);
-    writeSheetRows_(wageSheet, wageData.headers, wageData.rows);
+    writeSheetRows_(employeeSheet, employeeData.headers, employeeData.rows, [1, 3]);
+    writeSheetRows_(wageSheet, wageData.headers, wageData.rows, [1, 2]);
 
     return { count: records.length, batchId: batchId };
   } finally {

@@ -21,6 +21,20 @@ function initializeWorkbook() {
   return { spreadsheetId: ss.getId(), url: ss.getUrl() };
 }
 
+function clearUploadedData() {
+  var employeeSheet = getSheet('EmployeeMaster');
+  if (employeeSheet.getLastRow() > 1) {
+    employeeSheet.getRange(2, 1, employeeSheet.getLastRow() - 1, employeeSheet.getLastColumn()).clearContent();
+  }
+
+  var wageSheet = getSheet('WageRecords');
+  if (wageSheet.getLastRow() > 1) {
+    wageSheet.getRange(2, 1, wageSheet.getLastRow() - 1, wageSheet.getLastColumn()).clearContent();
+  }
+
+  return { cleared: true };
+}
+
 function initializeCredentials() {
   var props = PropertiesService.getScriptProperties();
   var result;
