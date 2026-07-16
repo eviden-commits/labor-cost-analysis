@@ -1,6 +1,8 @@
 var TARGET_JOB_TYPES = ['안전', '안전담당자'];
+var EXCLUDED_TEAM_KEYWORD = '용역';
+var MIN_VALID_WAGE = 90000;
 
-var COL = { C: 2, D: 3, E: 4, G: 6, L: 11, M: 12, N: 13, O: 14 };
+var COL = { B: 1, C: 2, D: 3, E: 4, G: 6, L: 11, M: 12, N: 13, O: 14 };
 
 function maskName(name) {
   if (!name || name.length < 2) return name;
@@ -40,6 +42,12 @@ function parseContractRows(rows, referenceDate) {
     var jobType = row[COL.L];
     if (TARGET_JOB_TYPES.indexOf(jobType) === -1) return;
 
+    var teamName = row[COL.B];
+    if (teamName && String(teamName).indexOf(EXCLUDED_TEAM_KEYWORD) !== -1) return;
+
+    var wage = row[COL.N];
+    if (!wage || wage <= MIN_VALID_WAGE) return;
+
     var birth = parseBirthDate(String(row[COL.E]), referenceDate);
     var contractStart = parseDotDate(row[COL.O]);
 
@@ -52,7 +60,7 @@ function parseContractRows(rows, referenceDate) {
       birthDay: birth.day,
       jobType: jobType,
       wageType: row[COL.M] === '일급' ? 'DAILY' : 'MONTHLY',
-      wage: row[COL.N],
+      wage: wage,
       contractYearMonth: toYearMonth(contractStart)
     });
   });
@@ -68,6 +76,8 @@ if (typeof module !== 'undefined') {
     toYearMonth: toYearMonth,
     parseContractRows: parseContractRows,
     TARGET_JOB_TYPES: TARGET_JOB_TYPES,
+    EXCLUDED_TEAM_KEYWORD: EXCLUDED_TEAM_KEYWORD,
+    MIN_VALID_WAGE: MIN_VALID_WAGE,
     COL: COL
   };
 }

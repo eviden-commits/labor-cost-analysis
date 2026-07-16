@@ -61,4 +61,16 @@ var withOtherJob = rows.concat([
 ]);
 assert.strictEqual(pp.parseContractRows(withOtherJob, referenceDate).length, 2);
 
+// 팀명(B열)에 "용역"이 들어가면 제외되어야 함 (직종이 안전이어도)
+var withServiceTeam = rows.concat([
+  ['현장', '안전용역', '888888', '이용역', '950101', '2', '여', null, '2026.06.01', '연장', 'N', '안전', '일급', 130000, '2026.07.01', '2026.07.31']
+]);
+assert.strictEqual(pp.parseContractRows(withServiceTeam, referenceDate).length, 2);
+
+// 단가가 90000원 이하(최초단가, 의미없는 값)면 제외되어야 함
+var withPlaceholderWage = rows.concat([
+  ['현장', '직영', '777777', '최최초', '950101', '2', '여', null, '2026.06.01', '연장', 'N', '안전', '일급', 90000, '2026.07.01', '2026.07.31']
+]);
+assert.strictEqual(pp.parseContractRows(withPlaceholderWage, referenceDate).length, 2);
+
 console.log('All preprocess tests passed.');
