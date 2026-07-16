@@ -1,8 +1,68 @@
-// 로그인 방식(자체 ID/PW vs Google 계정) 확정 후 구현 - 사양서.md 8번 항목 참고
-function loginUser(userId, password) {
-  throw new Error('NOT_IMPLEMENTED: 로그인 방식 확정 필요');
+var SESSION_TTL_SECONDS = 6 * 60 * 60;
+
+function hashPassword(password, salt) {
+  var digest = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, password + salt);
+  return digest.map(function (b) {
+    return ('0' + (b & 0xFF).toString(16)).slice(-2);
+  }).join('');
 }
 
-function loginAdmin(userId, password) {
-  throw new Error('NOT_IMPLEMENTED: 로그인 방식 확정 필요');
+function generateSalt() {
+  return Utilities.getUuid();
+}
+
+function propPrefix(role) {
+  return role.toUpperCase();
+}
+
+function verifyPassword(role, password) {
+  var props = PropertiesService.getScriptProperties();
+  var salt = props.getProperty(propPrefix(role) + '_PASSWORD_SALT');
+  var hash = props.getProperty(propPrefix(role) + '_PASSWORD_HASH');
+  if (!salt || !hash) return false;
+  return hashPassword(password, salt) === hash;
+}
+
+function setPassword(role, newPassword, sessionToken) {
+  requireRole(sessionToken, 'admin');
+  var salt = generateSalt();
+  var props = PropertiesService.getScriptProperties();
+  props.setProperty(propPrefix(role) + '_PASSWORD_SALT', salt);
+  props.setProperty(propPrefix(role) + '_PASSWORD_HASH', hashPassword(newPassword, salt));
+}
+
+function createSession(role) {
+  var token = Utilities.getUuid();
+  CacheService.getScriptCache().put('session_' + token, role, SESSION_TTL_SECONDS);
+  return token;
+}
+
+function loginUser(password) {
+  if (!verifyPassword('user', password)) {
+    throw new Error('비밀번호가 올바르지 않습니다.');
+  }
+  return { token: createSession('user'), role: 'user' };
+}
+
+function loginAdmin(password) {
+  if (!verifyPassword('admin', password)) {
+    throw new Error('비밀번호가 올바르지 않습니다.');
+  }
+  return { token: createSession('admin'), role: 'admin' };
+}
+
+function getSessionRole(token) {
+  if (!token) return null;
+  return CacheService.getScriptCache().get('session_' + token);
+}
+
+function requireRole(token, role) {
+  var actual = getSessionRole(token);
+  if (!actual) {
+    throw new Error('로그인이 필요합니다.');
+  }
+  if (role === 'admin' && actual !== 'admin') {
+    throw new Error('권한이 없습니다.');
+  }
+  return actual;
 }

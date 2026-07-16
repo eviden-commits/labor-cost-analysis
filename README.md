@@ -22,9 +22,18 @@ npx clasp create --type webapp --title "노무비 분석" --rootDir ./src
   스크립트 속성 `SPREADSHEET_ID`에 자동 저장됩니다 (수동 등록 불필요)
 - 실행 로그(또는 반환값)에 표시되는 URL로 생성된 스프레드시트를 바로 확인할 수 있습니다
 
+이어서 `initializeCredentials`도 한 번 실행하세요. 최초 어드민 비밀번호가 랜덤 생성되어
+반환값(실행 로그)에 **한 번만** 표시됩니다 — 꼭 적어두고, 어드민으로 로그인한 뒤
+"비밀번호 관리"에서 admin/user 비밀번호를 원하는 값으로 바꾸세요. 사용자(user) 공용
+비밀번호는 어드민이 로그인 후 직접 지정해야 초기 로그인이 가능합니다.
+
 xlsx 업로드 기능은 Advanced Drive Service(v3)를 사용합니다. `clasp push`로
 `appsscript.json`의 `enabledAdvancedServices`가 반영되면 별도 설정 없이 동작해야 하지만,
 안 될 경우 Apps Script 편집기 좌측 "서비스(Services)"에서 Drive API를 직접 추가하세요.
+
+**새 배포를 만들 때는 반드시 "액세스 권한이 있는 사용자"를 "모든 사용자"로 지정**하세요.
+API(clasp deploy)로 만든 배포는 기본값이 "나만"이라 익명 접속이 막힙니다 — 배포 관리(Manage
+deployments)에서 직접 "모든 사용자"로 바꿔야 합니다.
 
 ## 코드 push
 
@@ -38,9 +47,9 @@ npm run push
 src/
   appsscript.json      GAS 매니페스트 (webapp 설정, Advanced Drive Service)
   Code.js              doGet 라우팅
-  Auth.js              로그인 처리 (미구현 - 로그인 방식 확정 필요)
+  Auth.js              로그인/세션 처리 (역할별 공용 비밀번호 + 세션 토큰)
   SheetService.js       스프레드시트 접근 헬퍼 (ensureSheet, findRowByValue 등)
-  Setup.js             initializeWorkbook - 스프레드시트/시트/헤더 최초 자동 생성
+  Setup.js             initializeWorkbook/initializeCredentials - 최초 1회 자동 생성
   Preprocess.js        ERP xlsx 행 파싱/마스킹 로직 (Node에서도 테스트 가능)
   Upload.js            xlsx 업로드 → 임시 구글시트 변환 → EmployeeMaster/WageRecords 저장
   UserLogin.html        사용자 로그인 화면

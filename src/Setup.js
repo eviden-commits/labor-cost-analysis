@@ -20,3 +20,18 @@ function initializeWorkbook() {
 
   return { spreadsheetId: ss.getId(), url: ss.getUrl() };
 }
+
+function initializeCredentials() {
+  var props = PropertiesService.getScriptProperties();
+
+  if (props.getProperty('ADMIN_PASSWORD_HASH')) {
+    return { initialAdminPassword: '(이미 설정되어 있습니다. 변경하려면 어드민으로 로그인 후 비밀번호 변경 기능을 사용하세요.)' };
+  }
+
+  var initialAdminPassword = Utilities.getUuid().split('-')[0];
+  var salt = generateSalt();
+  props.setProperty('ADMIN_PASSWORD_SALT', salt);
+  props.setProperty('ADMIN_PASSWORD_HASH', hashPassword(initialAdminPassword, salt));
+
+  return { initialAdminPassword: initialAdminPassword };
+}

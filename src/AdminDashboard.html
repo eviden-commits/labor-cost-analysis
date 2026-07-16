@@ -27,8 +27,23 @@
       <button id="uploadBtn" onclick="upload()">업로드</button>
       <div id="uploadMsg" style="margin-top:8px;font-size:13px;"></div>
     </div>
+    <div class="card">
+      <h2 style="font-size:15px;">비밀번호 관리</h2>
+      <select id="pwRole" style="width:100%;padding:8px;margin-bottom:8px;">
+        <option value="user">사용자(전사 공용) 비밀번호</option>
+        <option value="admin">어드민 비밀번호</option>
+      </select>
+      <input type="password" id="newPassword" placeholder="새 비밀번호" style="width:100%;padding:8px;margin-bottom:8px;box-sizing:border-box;">
+      <button id="pwBtn" onclick="changePassword()">변경</button>
+      <div id="pwMsg" style="margin-top:8px;font-size:13px;"></div>
+    </div>
   </main>
   <script>
+    var sessionToken = sessionStorage.getItem('sessionToken');
+    if (!sessionToken) {
+      window.top.location.href = '?page=admin-login';
+    }
+
     function upload() {
       var input = document.getElementById('file');
       var file = input.files[0];
@@ -56,9 +71,31 @@
             msg.innerText = '오류: ' + err.message;
             document.getElementById('uploadBtn').disabled = false;
           })
-          .uploadContractFile(base64, file.name, file.type);
+          .uploadContractFile(sessionToken, base64, file.name, file.type);
       };
       reader.readAsDataURL(file);
+    }
+
+    function changePassword() {
+      var role = document.getElementById('pwRole').value;
+      var newPassword = document.getElementById('newPassword').value;
+      var msg = document.getElementById('pwMsg');
+      if (!newPassword) {
+        msg.style.color = '#d33';
+        msg.innerText = '새 비밀번호를 입력해주세요.';
+        return;
+      }
+      google.script.run
+        .withSuccessHandler(function () {
+          msg.style.color = '#080';
+          msg.innerText = '변경되었습니다.';
+          document.getElementById('newPassword').value = '';
+        })
+        .withFailureHandler(function (err) {
+          msg.style.color = '#d33';
+          msg.innerText = '오류: ' + err.message;
+        })
+        .setPassword(role, newPassword, sessionToken);
     }
   </script>
 </body>

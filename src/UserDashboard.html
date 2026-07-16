@@ -22,5 +22,10 @@
       <p>데이터 모델 확정 후 구현 예정</p>
     </div>
   </main>
+  <script>
+    if (!sessionStorage.getItem('sessionToken')) {
+      window.top.location.href = '?page=user-login';
+    }
+  </script>
 </body>
 </html>

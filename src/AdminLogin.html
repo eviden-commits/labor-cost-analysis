@@ -15,19 +15,21 @@
 <body>
   <div class="box">
     <h1>어드민 로그인</h1>
-    <input id="userId" placeholder="관리자 ID">
     <input id="password" type="password" placeholder="비밀번호">
     <button onclick="submitLogin()">로그인</button>
     <div id="msg"></div>
   </div>
   <script>
     function submitLogin() {
-      var userId = document.getElementById('userId').value;
       var password = document.getElementById('password').value;
       google.script.run
-        .withSuccessHandler(function () { window.top.location.href = '?page=admin'; })
+        .withSuccessHandler(function (result) {
+          sessionStorage.setItem('sessionToken', result.token);
+          sessionStorage.setItem('sessionRole', result.role);
+          window.top.location.href = '?page=admin';
+        })
         .withFailureHandler(function (err) { document.getElementById('msg').innerText = err.message; })
-        .loginAdmin(userId, password);
+        .loginAdmin(password);
     }
   </script>
 </body>

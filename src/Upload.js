@@ -36,7 +36,9 @@ function upsertWageRecord(record, batchId) {
   }
 }
 
-function uploadContractFile(base64Data, filename, mimeType) {
+function uploadContractFile(sessionToken, base64Data, filename, mimeType) {
+  requireRole(sessionToken, 'admin');
+
   var bytes = Utilities.base64Decode(base64Data);
   var blob = Utilities.newBlob(bytes, mimeType || DEFAULT_XLSX_MIME, filename);
 
