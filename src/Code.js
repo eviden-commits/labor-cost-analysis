@@ -1,19 +1,51 @@
 function doGet(e) {
-  var page = (e && e.parameter && e.parameter.page) || 'user-login';
-  var file = PAGE_MAP[page] || PAGE_MAP['user-login'];
-  return HtmlService.createTemplateFromFile(file)
-    .evaluate()
-    .setTitle('노무비 분석')
-    .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+  try {
+    var action = (e && e.parameter && e.parameter.action) || 'healthCheck';
+    var result;
+
+    switch (action) {
+      case 'healthCheck':
+        result = successResponse_({ status: 'OK', system: '노무비 분석' });
+        break;
+      default:
+        result = errorResponse_('UNKNOWN_ACTION', '알 수 없는 action입니다: ' + action);
+    }
+
+    return jsonOutput_(result);
+  } catch (err) {
+    return jsonOutput_(errorResponse_('DO_GET_ERROR', String(err.message || err)));
+  }
 }
 
-var PAGE_MAP = {
-  'user-login': 'UserLogin',
-  'admin-login': 'AdminLogin',
-  'user': 'UserDashboard',
-  'admin': 'AdminDashboard'
-};
+function doPost(e) {
+  try {
+    var body = parsePostBody_(e);
+    var action = body.action || '';
+    var payload = body.payload || {};
+    var result;
 
-function include(filename) {
-  return HtmlService.createHtmlOutputFromFile(filename).getContent();
+    switch (action) {
+      case 'login':
+        result = successResponse_(login(payload.role, payload.password));
+        break;
+
+      case 'uploadContractFile':
+        result = successResponse_(uploadContractFile(
+          payload.token, payload.base64Data, payload.filename, payload.mimeType
+        ));
+        break;
+
+      case 'setPassword':
+        setPassword(payload.role, payload.newPassword, payload.token);
+        result = successResponse_({ changed: true });
+        break;
+
+      default:
+        result = errorResponse_('UNKNOWN_ACTION', '알 수 없는 action입니다: ' + action);
+    }
+
+    return jsonOutput_(result);
+  } catch (err) {
+    return jsonOutput_(errorResponse_('DO_POST_ERROR', String(err.message || err)));
+  }
 }

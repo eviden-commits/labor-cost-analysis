@@ -37,18 +37,15 @@ function createSession(role) {
   return token;
 }
 
-function loginUser(password) {
-  if (!verifyPassword('user', password)) {
+function login(role, password) {
+  var normalizedRole = String(role || '').trim().toLowerCase();
+  if (normalizedRole !== 'user' && normalizedRole !== 'admin') {
+    throw new Error('역할이 올바르지 않습니다.');
+  }
+  if (!verifyPassword(normalizedRole, password)) {
     throw new Error('비밀번호가 올바르지 않습니다.');
   }
-  return { token: createSession('user'), role: 'user' };
-}
-
-function loginAdmin(password) {
-  if (!verifyPassword('admin', password)) {
-    throw new Error('비밀번호가 올바르지 않습니다.');
-  }
-  return { token: createSession('admin'), role: 'admin' };
+  return { token: createSession(normalizedRole), role: normalizedRole };
 }
 
 function getSessionRole(token) {
