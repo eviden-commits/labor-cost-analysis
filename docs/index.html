@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-  <div id="loginOverlay" class="login-overlay">
+  <div class="login-overlay">
     <div class="login-box">
       <div class="brand" style="margin-bottom: 18px">
         <div class="brand-mark">LC</div>
@@ -33,81 +33,7 @@
     </div>
   </div>
 
-  <div id="userRoot" class="hidden">
-    <header>
-      <div class="brand">
-        <div class="brand-mark">LC</div>
-        <div>
-          <div class="brand-title">노무비 적정성 확인</div>
-          <div class="muted" style="font-size: 11px; font-weight: 700">Labor Cost Analysis</div>
-        </div>
-      </div>
-      <div class="top-meta">
-        <button class="btn" id="userLogoutBtn" style="padding: 6px 10px">로그아웃</button>
-      </div>
-    </header>
-    <main>
-      <div class="card">
-        <h2 class="section-title">생년월일대별 평균급여</h2>
-        <p class="muted">디자인 시안 연결 대기 중 — Chart.js 연동 예정</p>
-      </div>
-      <div class="card">
-        <h2 class="section-title">급여 분포 (최저 / 중위 / 최대)</h2>
-        <p class="muted">디자인 시안 연결 대기 중</p>
-      </div>
-    </main>
-  </div>
-
-  <div id="adminRoot" class="hidden">
-    <header>
-      <div class="brand">
-        <div class="brand-mark">LC</div>
-        <div>
-          <div class="brand-title">노임 추이 (관리자)</div>
-          <div class="muted" style="font-size: 11px; font-weight: 700">Labor Cost Analysis (Admin)</div>
-        </div>
-      </div>
-      <div class="top-meta">
-        <button class="btn" id="adminLogoutBtn" style="padding: 6px 10px">로그아웃</button>
-      </div>
-    </header>
-    <main>
-      <div class="card">
-        <h2 class="section-title">사번별 급여 추적</h2>
-        <p class="muted">디자인 시안 연결 대기 중</p>
-      </div>
-      <div class="card">
-        <h2 class="section-title">전체 평균 상승률</h2>
-        <p class="muted">디자인 시안 연결 대기 중</p>
-      </div>
-      <div class="card">
-        <h2 class="section-title">데이터 전처리 업로드</h2>
-        <div class="field">
-          <input type="file" id="uploadFile" accept=".xlsx">
-        </div>
-        <button id="uploadBtn" class="btn primary">업로드</button>
-        <div id="uploadMsg" class="login-error"></div>
-      </div>
-      <div class="card">
-        <h2 class="section-title">비밀번호 관리</h2>
-        <div class="field">
-          <label>대상</label>
-          <select id="pwRole">
-            <option value="user">사용자(전사 공용) 비밀번호</option>
-            <option value="admin">어드민 비밀번호</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>새 비밀번호</label>
-          <input type="password" id="newPassword" placeholder="새 비밀번호">
-        </div>
-        <button id="pwBtn" class="btn primary">변경</button>
-        <div id="pwMsg" class="login-error"></div>
-      </div>
-    </main>
-  </div>
-
   <script src="./api.js"></script>
-  <script src="./app.js"></script>
+  <script src="./login.js"></script>
 </body>
 </html>

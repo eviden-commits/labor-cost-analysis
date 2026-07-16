@@ -67,11 +67,12 @@ src/                   Google Apps Script (JSON API 백엔드)
   Setup.js             initializeWorkbook/initializeCredentials - 최초 1회 자동 생성
   Preprocess.js        ERP xlsx 행 파싱/마스킹 로직 (Node에서도 테스트 가능)
   Upload.js            xlsx 업로드 → 임시 구글시트 변환 → EmployeeMaster/WageRecords 저장
-docs/                  정적 프론트엔드 (GitHub Pages)
-  index.html           로그인 화면 + 사용자/어드민 대시보드
-  style.css            세방테크 브랜드 스타일
-  api.js               apiGet/apiPost (fetch 기반 GAS API 클라이언트)
-  app.js               로그인/업로드/비밀번호 변경 등 화면 로직
+docs/                  정적 프론트엔드 (GitHub Pages) — 화면별로 파일 분리
+  index.html / login.js       로그인 화면 (역할 선택 + 비밀번호)
+  user.html / user.js         사용자 - 노무비 적정성 확인
+  admin.html / admin.js       어드민 - 노임 추이, 업로드, 비밀번호 관리
+  style.css                   세방테크 브랜드 스타일 (공통)
+  api.js                      apiGet/apiPost (fetch 기반 GAS API 클라이언트, 공통)
 test/
   preprocess.test.js    Preprocess.js 단위 테스트 (npm test)
 ```

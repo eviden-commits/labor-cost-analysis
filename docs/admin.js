@@ -1,39 +1,10 @@
-function showRoot(role) {
-  document.getElementById('loginOverlay').classList.add('hidden');
-  document.getElementById('userRoot').classList.add('hidden');
-  document.getElementById('adminRoot').classList.add('hidden');
-  document.getElementById(role === 'admin' ? 'adminRoot' : 'userRoot').classList.remove('hidden');
-}
-
-function showLogin() {
-  document.getElementById('loginOverlay').classList.remove('hidden');
-  document.getElementById('userRoot').classList.add('hidden');
-  document.getElementById('adminRoot').classList.add('hidden');
+if (sessionStorage.getItem('sessionRole') !== 'admin') {
+  window.location.href = 'index.html';
 }
 
 function logout() {
   sessionStorage.clear();
-  showLogin();
-}
-
-async function submitLogin() {
-  const role = document.querySelector('input[name="loginRole"]:checked').value;
-  const password = document.getElementById('loginPassword').value;
-  const errorBox = document.getElementById('loginError');
-  errorBox.innerText = '';
-
-  try {
-    const res = await apiPost('login', { role, password });
-    if (!res.ok) {
-      errorBox.innerText = res.error.message;
-      return;
-    }
-    sessionStorage.setItem('sessionToken', res.data.token);
-    sessionStorage.setItem('sessionRole', res.data.role);
-    showRoot(res.data.role);
-  } catch (err) {
-    errorBox.innerText = err.message;
-  }
+  window.location.href = 'index.html';
 }
 
 async function upload() {
@@ -102,15 +73,6 @@ async function changePassword() {
   }
 }
 
-document.getElementById('loginSubmitBtn').addEventListener('click', submitLogin);
-document.getElementById('userLogoutBtn').addEventListener('click', logout);
-document.getElementById('adminLogoutBtn').addEventListener('click', logout);
+document.getElementById('logoutBtn').addEventListener('click', logout);
 document.getElementById('uploadBtn').addEventListener('click', upload);
 document.getElementById('pwBtn').addEventListener('click', changePassword);
-
-const existingRole = sessionStorage.getItem('sessionRole');
-if (existingRole) {
-  showRoot(existingRole);
-} else {
-  showLogin();
-}

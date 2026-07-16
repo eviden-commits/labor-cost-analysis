@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>노무비 분석 - 관리자</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="brand-mark">LC</div>
+      <div>
+        <div class="brand-title">노임 추이 (관리자)</div>
+        <div class="muted" style="font-size: 11px; font-weight: 700">Labor Cost Analysis (Admin)</div>
+      </div>
+    </div>
+    <div class="top-meta">
+      <button class="btn" id="logoutBtn" style="padding: 6px 10px">로그아웃</button>
+    </div>
+  </header>
+  <main>
+    <div class="card">
+      <h2 class="section-title">사번별 급여 추적</h2>
+      <p class="muted">디자인 시안 연결 대기 중</p>
+    </div>
+    <div class="card">
+      <h2 class="section-title">전체 평균 상승률</h2>
+      <p class="muted">디자인 시안 연결 대기 중</p>
+    </div>
+    <div class="card">
+      <h2 class="section-title">데이터 전처리 업로드</h2>
+      <div class="field">
+        <input type="file" id="uploadFile" accept=".xlsx">
+      </div>
+      <button id="uploadBtn" class="btn primary">업로드</button>
+      <div id="uploadMsg" class="login-error"></div>
+    </div>
+    <div class="card">
+      <h2 class="section-title">비밀번호 관리</h2>
+      <div class="field">
+        <label>대상</label>
+        <select id="pwRole">
+          <option value="user">사용자(전사 공용) 비밀번호</option>
+          <option value="admin">어드민 비밀번호</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>새 비밀번호</label>
+        <input type="password" id="newPassword" placeholder="새 비밀번호">
+      </div>
+      <button id="pwBtn" class="btn primary">변경</button>
+      <div id="pwMsg" class="login-error"></div>
+    </div>
+  </main>
+
+  <script src="./api.js"></script>
+  <script src="./admin.js"></script>
+</body>
+</html>

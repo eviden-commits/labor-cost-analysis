@@ -1,11 +1,10 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="ko">
 <head>
-  <base target="_top">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>노무비 분석</title>
-  <?!= include('Stylesheet'); ?>
+  <link rel="stylesheet" href="./style.css">
 </head>
 <body>
   <header>
@@ -17,7 +16,7 @@
       </div>
     </div>
     <div class="top-meta">
-      <button class="btn" onclick="logout()" style="padding: 6px 10px">로그아웃</button>
+      <button class="btn" id="logoutBtn" style="padding: 6px 10px">로그아웃</button>
     </div>
   </header>
   <main>
@@ -30,14 +29,8 @@
       <p class="muted">디자인 시안 연결 대기 중</p>
     </div>
   </main>
-  <script>
-    if (!sessionStorage.getItem('sessionToken')) {
-      window.top.location.href = '?page=user-login';
-    }
-    function logout() {
-      sessionStorage.clear();
-      window.top.location.href = '?page=user-login';
-    }
-  </script>
+
+  <script src="./api.js"></script>
+  <script src="./user.js"></script>
 </body>
 </html>
