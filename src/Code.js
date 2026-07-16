@@ -40,6 +40,12 @@ function doPost(e) {
         result = successResponse_({ changed: true });
         break;
 
+      case 'checkWageAppropriateness':
+        result = successResponse_(checkWageAppropriateness(
+          payload.token, payload.birthDate, payload.desiredWage, payload.wageType
+        ));
+        break;
+
       default:
         result = errorResponse_('UNKNOWN_ACTION', '알 수 없는 action입니다: ' + action);
     }

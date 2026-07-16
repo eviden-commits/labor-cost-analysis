@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "노무비 분석 및 적정성 판단 프로그램 (Google Apps Script)",
   "scripts": {
-    "test": "node test/preprocess.test.js",
+    "test": "node test/preprocess.test.js && node test/stats.test.js",
     "login": "clasp login",
     "push": "clasp push",
     "open": "clasp open-script",

@@ -21,15 +21,39 @@
   </header>
   <main>
     <div class="card">
-      <h2 class="section-title">생년월일대별 평균급여</h2>
-      <p class="muted">디자인 시안 연결 대기 중 — Chart.js 연동 예정</p>
+      <h2 class="section-title">입사 대상자 적정성 확인</h2>
+      <div class="field">
+        <label>생년월일</label>
+        <input type="date" id="birthDate">
+      </div>
+      <div class="field">
+        <label>노임구분</label>
+        <select id="wageType">
+          <option value="DAILY">일급</option>
+          <option value="MONTHLY">월급</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>희망급여 (원)</label>
+        <input type="number" id="desiredWage" min="0" placeholder="예: 150000">
+      </div>
+      <button id="searchBtn" class="btn primary">검색</button>
+      <div id="searchError" class="login-error"></div>
     </div>
-    <div class="card">
-      <h2 class="section-title">급여 분포 (최저 / 중위 / 최대)</h2>
-      <p class="muted">디자인 시안 연결 대기 중</p>
+
+    <div class="card hidden" id="resultCard">
+      <h2 class="section-title" id="resultTitle"></h2>
+      <div class="summary-line"><span>비교 인원</span><span id="resultCount"></span></div>
+      <div class="summary-line"><span>최저 급여</span><span id="resultMin"></span></div>
+      <div class="summary-line"><span>중위 급여</span><span id="resultMedian"></span></div>
+      <div class="summary-line"><span>최고 급여</span><span id="resultMax"></span></div>
+      <div class="summary-line"><span>희망 급여</span><span id="resultDesired"></span></div>
+      <p id="resultVerdict" style="font-weight: 800;"></p>
+      <canvas id="resultChart" height="120"></canvas>
     </div>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="./api.js"></script>
   <script src="./user.js"></script>
 </body>
