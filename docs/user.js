@@ -13,6 +13,15 @@ function formatWon(n) {
   return n === null || n === undefined ? '-' : Number(n).toLocaleString('ko-KR') + '원';
 }
 
+function defaultReferenceMonth() {
+  const now = new Date();
+  const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const mm = String(prevMonth.getMonth() + 1).padStart(2, '0');
+  return prevMonth.getFullYear() + '-' + mm;
+}
+
+document.getElementById('referenceMonth').value = defaultReferenceMonth();
+
 async function search() {
   const birthDate = document.getElementById('birthDate').value;
   const wageType = document.getElementById('wageType').value;
