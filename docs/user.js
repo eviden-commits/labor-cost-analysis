@@ -16,6 +16,8 @@ function formatWon(n) {
 async function search() {
   const birthDate = document.getElementById('birthDate').value;
   const wageType = document.getElementById('wageType').value;
+  const gender = document.getElementById('gender').value;
+  const ageMode = document.getElementById('ageMode').value;
   const desiredWage = Number(document.getElementById('desiredWage').value);
   const errorBox = document.getElementById('searchError');
   errorBox.innerText = '';
@@ -29,8 +31,10 @@ async function search() {
     const res = await apiPost('checkWageAppropriateness', {
       token: sessionStorage.getItem('sessionToken'),
       birthDate,
+      gender,
       desiredWage,
-      wageType
+      wageType,
+      ageMode
     });
 
     if (!res.ok) {
@@ -40,13 +44,12 @@ async function search() {
 
     const data = res.data;
     document.getElementById('resultCard').classList.remove('hidden');
-    document.getElementById('resultTitle').innerText = data.ageBracket + ' 비교 결과';
+    document.getElementById('resultTitle').innerText = data.ageLabel + ' · ' + data.genderFilter + ' 비교 결과';
     document.getElementById('resultCount').innerText = data.peerCount + '명';
     document.getElementById('resultMin').innerText = formatWon(data.min);
     document.getElementById('resultMedian').innerText = formatWon(data.median);
     document.getElementById('resultMax').innerText = formatWon(data.max);
-    document.getElementById('resultDesired').innerText = formatWon(data.desiredWage);
-    document.getElementById('resultVerdict').innerText = data.verdict;
+    document.getElementById('resultVerdict').innerText = '희망급여 ' + formatWon(data.desiredWage) + ' → ' + data.verdict;
 
     const ctx = document.getElementById('resultChart');
     if (resultChart) resultChart.destroy();

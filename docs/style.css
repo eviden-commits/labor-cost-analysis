@@ -85,6 +85,22 @@ select:focus, input:focus, textarea:focus {
   padding: 12px 14px; background: var(--surface-dim); border: 1px solid var(--border);
   border-radius: 12px; margin-bottom: 8px; font-weight: 900;
 }
+.base-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px;
+}
+.stat-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px;
+}
+.stat-tile {
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  padding: 10px 6px; background: var(--surface-dim); border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.stat-label { font-size: 10px; font-weight: 700; color: var(--muted); margin-bottom: 3px; }
+.stat-value { font-size: 14px; font-weight: 900; }
+@media (max-width: 600px) {
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+}
 @media (max-width: 860px) {
   header { padding: 0 14px; }
   .top-meta { display: none; }

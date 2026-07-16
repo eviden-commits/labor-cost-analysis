@@ -5,29 +5,38 @@ function median_(sortedNumbers) {
   return n % 2 === 0 ? (sortedNumbers[mid - 1] + sortedNumbers[mid]) / 2 : sortedNumbers[mid];
 }
 
-var AGE_WINDOW_RADIUS = 2;
+var AGE_MODE_RADIUS = { exact: 0, window: 2 };
 
-function ageWindow_(age) {
-  var min = age - AGE_WINDOW_RADIUS;
-  var max = age + AGE_WINDOW_RADIUS;
-  return { age: age, min: min, max: max, label: min + '-' + max + '세' };
+function ageWindow_(age, radius) {
+  var min = age - radius;
+  var max = age + radius;
+  return {
+    age: age,
+    min: min,
+    max: max,
+    label: radius === 0 ? (age + '세 (동일 나이)') : (min + '-' + max + '세')
+  };
 }
 
-function checkWageAppropriateness(sessionToken, birthDate, desiredWage, wageType) {
+function checkWageAppropriateness(sessionToken, birthDate, gender, desiredWage, wageType, ageMode) {
   requireRole(sessionToken, 'user');
 
   var candidateYear = Number(String(birthDate).split('-')[0]);
   var referenceYear = new Date().getFullYear();
   var candidateAge = referenceYear - candidateYear;
-  var window = ageWindow_(candidateAge);
+  var radius = AGE_MODE_RADIUS.hasOwnProperty(ageMode) ? AGE_MODE_RADIUS[ageMode] : AGE_MODE_RADIUS.window;
+  var window = ageWindow_(candidateAge, radius);
+  var genderFilter = gender && gender !== 'ALL' ? gender : null;
 
   var employeeRows = getSheet('EmployeeMaster').getDataRange().getValues();
   var birthYearById = {};
+  var genderById = {};
   for (var i = 1; i < employeeRows.length; i++) {
     var empId = employeeRows[i][0];
     var birth = employeeRows[i][2];
     if (!empId || !birth) continue;
     birthYearById[empId] = Number(String(birth).split('-')[0]);
+    genderById[empId] = employeeRows[i][3];
   }
 
   var wageRows = getSheet('WageRecords').getDataRange().getValues();
@@ -48,6 +57,7 @@ function checkWageAppropriateness(sessionToken, birthDate, desiredWage, wageType
   Object.keys(latestByEmployee).forEach(function (empId) {
     var empBirthYear = birthYearById[empId];
     if (empBirthYear === undefined) return;
+    if (genderFilter && genderById[empId] !== genderFilter) return;
     var empAge = referenceYear - empBirthYear;
     if (empAge >= window.min && empAge <= window.max) {
       peerWages.push(latestByEmployee[empId].wage);
@@ -57,7 +67,8 @@ function checkWageAppropriateness(sessionToken, birthDate, desiredWage, wageType
   peerWages.sort(function (a, b) { return a - b; });
 
   var result = {
-    ageBracket: window.label,
+    ageLabel: window.label,
+    genderFilter: genderFilter || '전체',
     peerCount: peerWages.length,
     min: peerWages.length ? peerWages[0] : null,
     median: median_(peerWages),
@@ -67,15 +78,15 @@ function checkWageAppropriateness(sessionToken, birthDate, desiredWage, wageType
   };
 
   if (peerWages.length === 0) {
-    result.verdict = '비교할 동일 연령대·노임구분 데이터가 없습니다.';
+    result.verdict = '비교할 데이터가 없습니다.';
   } else if (desiredWage < result.min) {
-    result.verdict = '동일 연령대 최저 급여보다 낮습니다.';
+    result.verdict = '최저 급여보다 낮습니다.';
   } else if (desiredWage > result.max) {
-    result.verdict = '동일 연령대 최고 급여보다 높습니다.';
+    result.verdict = '최고 급여보다 높습니다.';
   } else if (desiredWage < result.median) {
-    result.verdict = '동일 연령대 중위 급여보다 낮은 편입니다.';
+    result.verdict = '중위 급여보다 낮은 편입니다.';
   } else {
-    result.verdict = '동일 연령대 중위 급여 이상입니다.';
+    result.verdict = '중위 급여 이상입니다.';
   }
 
   return result;

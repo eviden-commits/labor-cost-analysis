@@ -26,16 +26,33 @@
         <label>생년월일</label>
         <input type="date" id="birthDate">
       </div>
-      <div class="field">
-        <label>노임구분</label>
-        <select id="wageType">
-          <option value="DAILY">일급</option>
-          <option value="MONTHLY">월급</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>희망급여 (원)</label>
-        <input type="number" id="desiredWage" min="0" placeholder="예: 150000">
+      <div class="base-grid">
+        <div class="field">
+          <label>노임구분</label>
+          <select id="wageType">
+            <option value="DAILY">일급</option>
+            <option value="MONTHLY">월급</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>성별</label>
+          <select id="gender">
+            <option value="ALL">전체</option>
+            <option value="남">남</option>
+            <option value="여">여</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>연령 비교</label>
+          <select id="ageMode">
+            <option value="window">±2세 비교</option>
+            <option value="exact">동일 나이만</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>희망급여 (원)</label>
+          <input type="number" id="desiredWage" min="0" placeholder="예: 150000">
+        </div>
       </div>
       <button id="searchBtn" class="btn primary">검색</button>
       <div id="searchError" class="login-error"></div>
@@ -43,11 +60,12 @@
 
     <div class="card hidden" id="resultCard">
       <h2 class="section-title" id="resultTitle"></h2>
-      <div class="summary-line"><span>비교 인원</span><span id="resultCount"></span></div>
-      <div class="summary-line"><span>최저 급여</span><span id="resultMin"></span></div>
-      <div class="summary-line"><span>중위 급여</span><span id="resultMedian"></span></div>
-      <div class="summary-line"><span>최고 급여</span><span id="resultMax"></span></div>
-      <div class="summary-line"><span>희망 급여</span><span id="resultDesired"></span></div>
+      <div class="stat-grid">
+        <div class="stat-tile"><span class="stat-label">비교 인원</span><span class="stat-value" id="resultCount"></span></div>
+        <div class="stat-tile"><span class="stat-label">최저</span><span class="stat-value" id="resultMin"></span></div>
+        <div class="stat-tile"><span class="stat-label">중위</span><span class="stat-value" id="resultMedian"></span></div>
+        <div class="stat-tile"><span class="stat-label">최고</span><span class="stat-value" id="resultMax"></span></div>
+      </div>
       <p id="resultVerdict" style="font-weight: 800;"></p>
       <canvas id="resultChart" height="120"></canvas>
     </div>
