@@ -21,4 +21,19 @@ assert.strictEqual(stats.normalizeYearMonth_('2026.07'), '2026.07');
 assert.strictEqual(stats.normalizeYearMonth_(''), '');
 assert.strictEqual(stats.normalizeYearMonth_(undefined), '');
 
+assert.strictEqual(stats.mean_([]), null);
+assert.strictEqual(stats.mean_([100]), 100);
+assert.strictEqual(stats.mean_([100, 200, 300]), 200);
+assert.strictEqual(stats.mean_([100, 200, 400]), 233); // 233.33 -> round
+
+// rankFromTop_: sortedWages는 오름차순 정렬되어 있다고 가정
+assert.deepStrictEqual(stats.rankFromTop_([], 5000), { rank: null, percentileFromTop: null });
+var sorted = [3500000, 4000000, 4500000, 5000000, 6170000];
+assert.deepStrictEqual(stats.rankFromTop_(sorted, 6170000), { rank: 1, percentileFromTop: 20 }); // 최고
+assert.deepStrictEqual(stats.rankFromTop_(sorted, 3500000), { rank: 5, percentileFromTop: 100 }); // 최저
+assert.deepStrictEqual(stats.rankFromTop_(sorted, 4500000), { rank: 3, percentileFromTop: 60 }); // 중간(자기 자신 포함 안 됨, 위에 2명)
+assert.deepStrictEqual(stats.rankFromTop_(sorted, 9999999), { rank: 1, percentileFromTop: 20 }); // 전부보다 높음
+
+assert.strictEqual(stats.LOW_SAMPLE_THRESHOLD, 5);
+
 console.log('All stats tests passed.');

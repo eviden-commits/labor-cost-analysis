@@ -5,7 +5,14 @@ function median_(sortedNumbers) {
   return n % 2 === 0 ? (sortedNumbers[mid - 1] + sortedNumbers[mid]) / 2 : sortedNumbers[mid];
 }
 
+function mean_(numbers) {
+  if (numbers.length === 0) return null;
+  var sum = numbers.reduce(function (a, b) { return a + b; }, 0);
+  return Math.round(sum / numbers.length);
+}
+
 var AGE_MODE_RADIUS = { exact: 0, window: 2 };
+var LOW_SAMPLE_THRESHOLD = 5;
 
 function ageWindow_(age, radius) {
   var min = age - radius;
@@ -22,7 +29,16 @@ function normalizeYearMonth_(yearMonth) {
   return String(yearMonth || '').replace(/-/g, '.');
 }
 
-function checkWageAppropriateness(sessionToken, birthDate, gender, desiredWage, wageType, ageMode, referenceMonth) {
+// 희망급여가 오름차순 정렬된 sortedWages 안에서 상위 몇 번째/몇 %인지 계산
+function rankFromTop_(sortedWages, desiredWage) {
+  if (sortedWages.length === 0) return { rank: null, percentileFromTop: null };
+  var higherCount = sortedWages.filter(function (w) { return w > desiredWage; }).length;
+  var rank = higherCount + 1;
+  var percentileFromTop = Math.round((rank / sortedWages.length) * 100);
+  return { rank: rank, percentileFromTop: percentileFromTop };
+}
+
+function checkWageAppropriateness(sessionToken, birthDate, gender, jobType, desiredWage, wageType, ageMode, referenceMonth) {
   requireRole(sessionToken, 'user');
 
   var candidateYear = Number(String(birthDate).split('-')[0]);
@@ -31,16 +47,19 @@ function checkWageAppropriateness(sessionToken, birthDate, gender, desiredWage, 
   var radius = AGE_MODE_RADIUS.hasOwnProperty(ageMode) ? AGE_MODE_RADIUS[ageMode] : AGE_MODE_RADIUS.window;
   var window = ageWindow_(candidateAge, radius);
   var genderFilter = gender && gender !== 'ALL' ? gender : null;
+  var jobTypeFilter = jobType && jobType !== 'ALL' ? jobType : null;
 
   var employeeRows = getSheet('EmployeeMaster').getDataRange().getValues();
   var birthYearById = {};
   var genderById = {};
+  var jobTypeById = {};
   for (var i = 1; i < employeeRows.length; i++) {
     var empId = employeeRows[i][0];
     var birth = employeeRows[i][2];
     if (!empId || !birth) continue;
     birthYearById[empId] = Number(String(birth).split('-')[0]);
     genderById[empId] = employeeRows[i][3];
+    jobTypeById[empId] = employeeRows[i][4];
   }
 
   var wageRows = getSheet('WageRecords').getDataRange().getValues();
@@ -65,26 +84,43 @@ function checkWageAppropriateness(sessionToken, birthDate, gender, desiredWage, 
   }
 
   var peerWages = [];
+  var companyWages = [];
   Object.keys(wageByEmployee).forEach(function (empId) {
+    var wage = wageByEmployee[empId];
     var empBirthYear = birthYearById[empId];
     if (empBirthYear === undefined) return;
+
+    companyWages.push(wage);
+
     if (genderFilter && genderById[empId] !== genderFilter) return;
+    if (jobTypeFilter && jobTypeById[empId] !== jobTypeFilter) return;
     var empAge = referenceYear - empBirthYear;
     if (empAge >= window.min && empAge <= window.max) {
-      peerWages.push(wageByEmployee[empId]);
+      peerWages.push(wage);
     }
   });
 
   peerWages.sort(function (a, b) { return a - b; });
+  companyWages.sort(function (a, b) { return a - b; });
+
+  var rankInfo = rankFromTop_(peerWages, desiredWage);
 
   var result = {
     ageLabel: window.label,
     genderFilter: genderFilter || '전체',
+    jobTypeFilter: jobTypeFilter || '전체',
     referenceMonth: wantedMonth || '(데이터 없음)',
     peerCount: peerWages.length,
+    peerWages: peerWages,
     min: peerWages.length ? peerWages[0] : null,
+    mean: mean_(peerWages),
     median: median_(peerWages),
     max: peerWages.length ? peerWages[peerWages.length - 1] : null,
+    rank: rankInfo.rank,
+    percentileFromTop: rankInfo.percentileFromTop,
+    lowSample: peerWages.length > 0 && peerWages.length < LOW_SAMPLE_THRESHOLD,
+    companyCount: companyWages.length,
+    companyWages: companyWages,
     desiredWage: desiredWage,
     wageType: wageType
   };
@@ -105,5 +141,12 @@ function checkWageAppropriateness(sessionToken, birthDate, gender, desiredWage, 
 }
 
 if (typeof module !== 'undefined') {
-  module.exports = { median_: median_, ageWindow_: ageWindow_, normalizeYearMonth_: normalizeYearMonth_ };
+  module.exports = {
+    median_: median_,
+    mean_: mean_,
+    ageWindow_: ageWindow_,
+    normalizeYearMonth_: normalizeYearMonth_,
+    rankFromTop_: rankFromTop_,
+    LOW_SAMPLE_THRESHOLD: LOW_SAMPLE_THRESHOLD
+  };
 }

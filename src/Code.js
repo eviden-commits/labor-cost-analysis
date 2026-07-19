@@ -42,7 +42,7 @@ function doPost(e) {
 
       case 'checkWageAppropriateness':
         result = successResponse_(checkWageAppropriateness(
-          payload.token, payload.birthDate, payload.gender,
+          payload.token, payload.birthDate, payload.gender, payload.jobType,
           payload.desiredWage, payload.wageType, payload.ageMode, payload.referenceMonth
         ));
         break;

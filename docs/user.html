@@ -28,6 +28,14 @@
       </div>
       <div class="base-grid">
         <div class="field">
+          <label>직종</label>
+          <select id="jobType">
+            <option value="ALL">전체</option>
+            <option value="안전">안전</option>
+            <option value="안전담당자">안전담당자</option>
+          </select>
+        </div>
+        <div class="field">
           <label>노임구분</label>
           <select id="wageType">
             <option value="DAILY">일급</option>
@@ -64,14 +72,27 @@
 
     <div class="card hidden" id="resultCard">
       <h2 class="section-title" id="resultTitle"></h2>
-      <div class="stat-grid">
+      <div class="stat-grid stat-grid-5">
         <div class="stat-tile"><span class="stat-label">비교 인원</span><span class="stat-value" id="resultCount"></span></div>
         <div class="stat-tile"><span class="stat-label">최저</span><span class="stat-value" id="resultMin"></span></div>
+        <div class="stat-tile"><span class="stat-label">평균</span><span class="stat-value" id="resultMean"></span></div>
         <div class="stat-tile"><span class="stat-label">중위</span><span class="stat-value" id="resultMedian"></span></div>
         <div class="stat-tile"><span class="stat-label">최고</span><span class="stat-value" id="resultMax"></span></div>
       </div>
-      <p id="resultVerdict" style="font-weight: 800;"></p>
-      <canvas id="resultChart" height="120"></canvas>
+      <p id="resultVerdict" style="font-weight: 800; margin-bottom: 4px;"></p>
+      <p id="resultRank" class="muted" style="margin-top: 0;"></p>
+      <div id="lowSampleWarning" class="warning-box hidden">표본이 적어 참고용으로만 활용해주세요.</div>
+
+      <div class="dot-grid">
+        <div>
+          <h3 class="section-title" style="font-size: 13px;">동일 조건 비교군 분포</h3>
+          <canvas id="peerChart" height="140"></canvas>
+        </div>
+        <div>
+          <h3 class="section-title" style="font-size: 13px;">전체(같은 노임구분) 분포</h3>
+          <canvas id="companyChart" height="140"></canvas>
+        </div>
+      </div>
     </div>
   </main>
 
