@@ -53,7 +53,7 @@ function doPost(e) {
 
       case 'getWageGrowth':
         result = successResponse_(getWageGrowth(
-          payload.token, payload.wageType, payload.fromMonth, payload.toMonth
+          payload.token, payload.wageType, payload.fromMonth, payload.toMonth, payload.jobType
         ));
         break;
 

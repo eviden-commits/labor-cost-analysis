@@ -46,18 +46,28 @@ function monthRange_(fromYearMonth, toYearMonth) {
   return months;
 }
 
-function getWageGrowth(sessionToken, wageType, fromMonth, toMonth) {
+function getWageGrowth(sessionToken, wageType, fromMonth, toMonth, jobType) {
   requireRole(sessionToken, 'admin');
 
   var from = normalizeYearMonth_(fromMonth);
   var to = normalizeYearMonth_(toMonth);
   var months = monthRange_(from, to);
+  var jobTypeFilter = jobType && jobType !== 'ALL' ? jobType : null;
+
+  var jobTypeById = {};
+  if (jobTypeFilter) {
+    var employeeRows = getSheet('EmployeeMaster').getDataRange().getValues();
+    for (var e = 1; e < employeeRows.length; e++) {
+      jobTypeById[employeeRows[e][0]] = employeeRows[e][4];
+    }
+  }
 
   var wageRows = getSheet('WageRecords').getDataRange().getValues();
   var wagesByMonth = {};
   months.forEach(function (m) { wagesByMonth[m] = []; });
   for (var i = 1; i < wageRows.length; i++) {
     if (wageRows[i][2] !== wageType) continue;
+    if (jobTypeFilter && jobTypeById[wageRows[i][0]] !== jobTypeFilter) continue;
     var ym = wageRows[i][1];
     if (wagesByMonth.hasOwnProperty(ym)) {
       wagesByMonth[ym].push(wageRows[i][3]);
@@ -81,6 +91,7 @@ function getWageGrowth(sessionToken, wageType, fromMonth, toMonth) {
 
   return {
     wageType: wageType,
+    jobTypeFilter: jobTypeFilter || '전체',
     series: series,
     growthPct: growthPct
   };

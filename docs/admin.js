@@ -130,6 +130,7 @@ async function loadTrend() {
 let growthChart = null;
 
 async function loadGrowth() {
+  const jobType = document.getElementById('growthJobType').value;
   const wageType = document.getElementById('growthWageType').value;
   const fromMonth = document.getElementById('growthFromMonth').value;
   const toMonth = document.getElementById('growthToMonth').value;
@@ -144,6 +145,7 @@ async function loadGrowth() {
   try {
     const res = await apiPost('getWageGrowth', {
       token: sessionStorage.getItem('sessionToken'),
+      jobType,
       wageType,
       fromMonth,
       toMonth
@@ -158,7 +160,8 @@ async function loadGrowth() {
 
     const pctText = data.growthPct === null ? '비교 불가' : (data.growthPct > 0 ? '+' : '') + data.growthPct + '%';
     document.getElementById('growthSummary').innerText =
-      data.series[0].yearMonth + ' → ' + data.series[data.series.length - 1].yearMonth + ' 평균 증감률: ' + pctText;
+      '[' + data.jobTypeFilter + '] ' + data.series[0].yearMonth + ' → ' +
+      data.series[data.series.length - 1].yearMonth + ' 평균 증감률: ' + pctText;
 
     const ctx = document.getElementById('growthChart');
     if (growthChart) growthChart.destroy();
