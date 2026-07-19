@@ -1,4 +1,14 @@
-var TARGET_JOB_TYPES = ['안전', '안전담당자'];
+// ERP 직종 필터의 실제 카테고리 전체. 안전/안전담당자는 같은 인원을 가리키는
+// 다른 표기라서 '안전' 하나로 합쳐서 저장한다 (2026-07-16 결정).
+var JOB_TYPE_ALIASES = {
+  'BIM': 'BIM',
+  'SHOP': 'SHOP',
+  '공무': '공무',
+  '공사': '공사',
+  '안전': '안전',
+  '안전담당자': '안전',
+  '품질': '품질'
+};
 var EXCLUDED_TEAM_KEYWORD = '용역';
 var MIN_VALID_WAGE = 90000;
 
@@ -39,8 +49,8 @@ function parseContractRows(rows, referenceDate) {
     var employeeId = row[COL.C];
     if (!employeeId) return;
 
-    var jobType = row[COL.L];
-    if (TARGET_JOB_TYPES.indexOf(jobType) === -1) return;
+    var jobType = JOB_TYPE_ALIASES[row[COL.L]];
+    if (!jobType) return;
 
     var teamName = row[COL.B];
     if (teamName && String(teamName).indexOf(EXCLUDED_TEAM_KEYWORD) !== -1) return;
@@ -75,7 +85,7 @@ if (typeof module !== 'undefined') {
     parseDotDate: parseDotDate,
     toYearMonth: toYearMonth,
     parseContractRows: parseContractRows,
-    TARGET_JOB_TYPES: TARGET_JOB_TYPES,
+    JOB_TYPE_ALIASES: JOB_TYPE_ALIASES,
     EXCLUDED_TEAM_KEYWORD: EXCLUDED_TEAM_KEYWORD,
     MIN_VALID_WAGE: MIN_VALID_WAGE,
     COL: COL

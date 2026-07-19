@@ -29,6 +29,7 @@ var rows = [
 var parsed = pp.parseContractRows(rows, referenceDate);
 assert.strictEqual(parsed.length, 2);
 
+// 안전담당자는 안전과 같은 인원이라 '안전'으로 정규화되어야 함
 assert.deepStrictEqual(parsed[0], {
   employeeId: '370491',
   maskedName: '김OO',
@@ -36,7 +37,7 @@ assert.deepStrictEqual(parsed[0], {
   birthYear: 1996,
   birthMonth: 10,
   birthDay: 18,
-  jobType: '안전담당자',
+  jobType: '안전',
   wageType: 'DAILY',
   wage: 130000,
   contractYearMonth: '2026.07'
@@ -55,11 +56,26 @@ assert.deepStrictEqual(parsed[1], {
   contractYearMonth: '2026.07'
 });
 
-// non-target 직종은 제외되어야 함
-var withOtherJob = rows.concat([
-  ['현장', '팀', '999999', '박공사', '900101', '1', '남', null, '2026.06.01', '연장', 'N', '공사', '월급', 3000000, '2026.07.01', '2026.07.31']
+// ERP 직종 필터에 없는 값(예: 오타/미분류)은 제외되어야 함
+var withUnknownJob = rows.concat([
+  ['현장', '팀', '999999', '박기타', '900101', '1', '남', null, '2026.06.01', '연장', 'N', '기타', '월급', 3000000, '2026.07.01', '2026.07.31']
 ]);
-assert.strictEqual(pp.parseContractRows(withOtherJob, referenceDate).length, 2);
+assert.strictEqual(pp.parseContractRows(withUnknownJob, referenceDate).length, 2);
+
+// 공사/품질/공무/BIM/SHOP은 각자 고유 카테고리로 포함되어야 함 (안전과 달리 합치지 않음)
+var withAllDepartments = rows.concat([
+  ['현장', '팀', '111111', '박공사', '900101', '1', '남', null, '2026.06.01', '연장', 'N', '공사', '월급', 3000000, '2026.07.01', '2026.07.31'],
+  ['현장', '팀', '222222', '이품질', '900101', '2', '여', null, '2026.06.01', '연장', 'N', '품질', '월급', 3000000, '2026.07.01', '2026.07.31'],
+  ['현장', '팀', '333333', '최공무', '900101', '1', '남', null, '2026.06.01', '연장', 'N', '공무', '월급', 3000000, '2026.07.01', '2026.07.31'],
+  ['현장', '팀', '444444', '정비임', '900101', '2', '여', null, '2026.06.01', '연장', 'N', 'BIM', '월급', 3000000, '2026.07.01', '2026.07.31'],
+  ['현장', '팀', '555555', '한샵', '900101', '1', '남', null, '2026.06.01', '연장', 'N', 'SHOP', '월급', 3000000, '2026.07.01', '2026.07.31']
+]);
+var allDeptResults = pp.parseContractRows(withAllDepartments, referenceDate);
+assert.strictEqual(allDeptResults.length, 7);
+assert.deepStrictEqual(
+  allDeptResults.slice(2).map(function (r) { return r.jobType; }),
+  ['공사', '품질', '공무', 'BIM', 'SHOP']
+);
 
 // 팀명(B열)에 "용역"이 들어가면 제외되어야 함 (직종이 안전이어도)
 var withServiceTeam = rows.concat([
