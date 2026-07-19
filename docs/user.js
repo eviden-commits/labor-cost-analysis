@@ -137,6 +137,7 @@ function renderDensityPlot(canvasId, existingChart, wages, desiredWage, label) {
 
 async function search() {
   const birthDate = document.getElementById('birthDate').value;
+  const jobType = document.getElementById('jobType').value;
   const wageType = document.getElementById('wageType').value;
   const gender = document.getElementById('gender').value;
   const ageMode = document.getElementById('ageMode').value;
@@ -155,6 +156,7 @@ async function search() {
       token: sessionStorage.getItem('sessionToken'),
       birthDate,
       gender,
+      jobType,
       desiredWage,
       wageType,
       ageMode,
@@ -169,7 +171,7 @@ async function search() {
     const data = res.data;
     document.getElementById('resultCard').classList.remove('hidden');
     document.getElementById('resultTitle').innerText =
-      data.referenceMonth + ' 기준 · ' + data.ageLabel + ' · ' + data.genderFilter + ' 비교 결과';
+      data.referenceMonth + ' 기준 · ' + data.ageLabel + ' · ' + data.genderFilter + ' · ' + data.jobTypeFilter + ' 비교 결과';
     document.getElementById('resultCount').innerText = data.peerCount + '명';
     document.getElementById('resultMin').innerText = formatWon(data.min);
     document.getElementById('resultMean').innerText = formatWon(data.mean);
