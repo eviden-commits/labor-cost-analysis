@@ -73,6 +73,99 @@ async function changePassword() {
   }
 }
 
+let trendChart = null;
+
+async function loadTrend() {
+  const employeeId = document.getElementById('trendEmployeeId').value.trim();
+  const errorBox = document.getElementById('trendError');
+  errorBox.innerText = '';
+  if (!employeeId) {
+    errorBox.innerText = '사번을 입력해주세요.';
+    return;
+  }
+
+  try {
+    const res = await apiPost('getEmployeeWageTrend', {
+      token: sessionStorage.getItem('sessionToken'),
+      employeeId
+    });
+    if (!res.ok) {
+      errorBox.innerText = res.error.message;
+      return;
+    }
+
+    const data = res.data;
+    if (!data.history.length) {
+      errorBox.innerText = '해당 사번의 급여 이력이 없습니다.';
+      document.getElementById('trendResult').classList.add('hidden');
+      return;
+    }
+
+    document.getElementById('trendResult').classList.remove('hidden');
+    document.getElementById('trendSummary').innerText =
+      (data.maskedName || employeeId) + ' (' + (data.jobType || '-') + ') · ' + data.history.length + '개월 이력';
+
+    const ctx = document.getElementById('trendChart');
+    if (trendChart) trendChart.destroy();
+    trendChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: data.history.map((h) => h.yearMonth),
+        datasets: [{
+          label: '급여 (원)',
+          data: data.history.map((h) => h.wage),
+          borderColor: '#003a70',
+          backgroundColor: 'rgba(0, 58, 112, 0.12)',
+          fill: true,
+          tension: 0.2
+        }]
+      },
+      options: { plugins: { legend: { display: false } } }
+    });
+  } catch (err) {
+    errorBox.innerText = err.message;
+  }
+}
+
+async function loadGrowth() {
+  const wageType = document.getElementById('growthWageType').value;
+  const fromMonth = document.getElementById('growthFromMonth').value;
+  const toMonth = document.getElementById('growthToMonth').value;
+  const errorBox = document.getElementById('growthError');
+  errorBox.innerText = '';
+
+  if (!fromMonth || !toMonth) {
+    errorBox.innerText = '비교할 시작월과 종료월을 선택해주세요.';
+    return;
+  }
+
+  try {
+    const res = await apiPost('getWageGrowth', {
+      token: sessionStorage.getItem('sessionToken'),
+      wageType,
+      fromMonth,
+      toMonth
+    });
+    if (!res.ok) {
+      errorBox.innerText = res.error.message;
+      return;
+    }
+
+    const data = res.data;
+    document.getElementById('growthResult').classList.remove('hidden');
+    document.getElementById('growthFromLabel').innerText = data.fromMonth + ' 평균 (' + data.fromCount + '명)';
+    document.getElementById('growthFromAvg').innerText = formatWon(data.fromAvg);
+    document.getElementById('growthToLabel').innerText = data.toMonth + ' 평균 (' + data.toCount + '명)';
+    document.getElementById('growthToAvg').innerText = formatWon(data.toAvg);
+    document.getElementById('growthPct').innerText =
+      data.growthPct === null ? '비교 불가' : (data.growthPct > 0 ? '+' : '') + data.growthPct + '%';
+  } catch (err) {
+    errorBox.innerText = err.message;
+  }
+}
+
 document.getElementById('logoutBtn').addEventListener('click', logout);
 document.getElementById('uploadBtn').addEventListener('click', upload);
 document.getElementById('pwBtn').addEventListener('click', changePassword);
+document.getElementById('trendBtn').addEventListener('click', loadTrend);
+document.getElementById('growthBtn').addEventListener('click', loadGrowth);

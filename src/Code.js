@@ -47,6 +47,16 @@ function doPost(e) {
         ));
         break;
 
+      case 'getEmployeeWageTrend':
+        result = successResponse_(getEmployeeWageTrend(payload.token, payload.employeeId));
+        break;
+
+      case 'getWageGrowth':
+        result = successResponse_(getWageGrowth(
+          payload.token, payload.wageType, payload.fromMonth, payload.toMonth
+        ));
+        break;
+
       default:
         result = errorResponse_('UNKNOWN_ACTION', '알 수 없는 action입니다: ' + action);
     }

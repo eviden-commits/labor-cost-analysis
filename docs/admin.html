@@ -11,7 +11,7 @@
     <div class="brand">
       <div class="brand-mark">LC</div>
       <div>
-        <div class="brand-title">노임 추이 (관리자)</div>
+        <div class="brand-title">노무비 분석 (관리자)</div>
         <div class="muted" style="font-size: 11px; font-weight: 700">Labor Cost Analysis (Admin)</div>
       </div>
     </div>
@@ -21,13 +21,128 @@
   </header>
   <main>
     <div class="card">
-      <h2 class="section-title">사번별 급여 추적</h2>
-      <p class="muted">디자인 시안 연결 대기 중</p>
+      <h2 class="section-title">입사 대상자 적정성 확인</h2>
+      <div class="field">
+        <label>생년월일</label>
+        <input type="date" id="birthDate">
+      </div>
+      <div class="base-grid">
+        <div class="field">
+          <label>직종</label>
+          <select id="jobType">
+            <option value="ALL">전체</option>
+            <option value="BIM">BIM</option>
+            <option value="SHOP">SHOP</option>
+            <option value="공무">공무</option>
+            <option value="공사">공사</option>
+            <option value="안전">안전</option>
+            <option value="품질">품질</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>노임구분</label>
+          <select id="wageType">
+            <option value="DAILY">일급</option>
+            <option value="MONTHLY">월급</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>성별</label>
+          <select id="gender">
+            <option value="ALL">전체</option>
+            <option value="남">남</option>
+            <option value="여">여</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>연령 비교</label>
+          <select id="ageMode">
+            <option value="window">±2세 비교</option>
+            <option value="exact">동일 나이만</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>희망급여 (원)</label>
+          <input type="number" id="desiredWage" min="0" placeholder="예: 150000">
+        </div>
+        <div class="field">
+          <label>기준월 (비워두면 최근월)</label>
+          <input type="month" id="referenceMonth">
+        </div>
+      </div>
+      <button id="searchBtn" class="btn primary">검색</button>
+      <div id="searchError" class="login-error"></div>
     </div>
+
+    <div class="card hidden" id="resultCard">
+      <h2 class="section-title" id="resultTitle"></h2>
+      <div class="stat-grid stat-grid-5">
+        <div class="stat-tile"><span class="stat-label">비교 인원</span><span class="stat-value" id="resultCount"></span></div>
+        <div class="stat-tile"><span class="stat-label">최저</span><span class="stat-value" id="resultMin"></span></div>
+        <div class="stat-tile"><span class="stat-label">평균</span><span class="stat-value" id="resultMean"></span></div>
+        <div class="stat-tile"><span class="stat-label">중위</span><span class="stat-value" id="resultMedian"></span></div>
+        <div class="stat-tile"><span class="stat-label">최고</span><span class="stat-value" id="resultMax"></span></div>
+      </div>
+      <p id="resultVerdict" style="font-weight: 800; margin-bottom: 4px;"></p>
+      <p id="resultRank" class="muted" style="margin-top: 0;"></p>
+      <div id="lowSampleWarning" class="warning-box hidden">표본이 적어 참고용으로만 활용해주세요.</div>
+
+      <div class="dot-grid">
+        <div>
+          <h3 class="section-title" style="font-size: 13px;">동일 조건 비교군 분포</h3>
+          <canvas id="peerChart" height="140"></canvas>
+        </div>
+        <div>
+          <h3 class="section-title" style="font-size: 13px;">전체(같은 노임구분) 분포</h3>
+          <canvas id="companyChart" height="140"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 class="section-title">사번별 급여 추적</h2>
+      <div class="base-grid">
+        <div class="field">
+          <label>사번</label>
+          <input type="text" id="trendEmployeeId" placeholder="예: 370491">
+        </div>
+      </div>
+      <button id="trendBtn" class="btn primary">조회</button>
+      <div id="trendError" class="login-error"></div>
+      <div id="trendResult" class="hidden" style="margin-top: 14px;">
+        <p id="trendSummary" class="muted"></p>
+        <canvas id="trendChart" height="120"></canvas>
+      </div>
+    </div>
+
     <div class="card">
       <h2 class="section-title">전체 평균 상승률</h2>
-      <p class="muted">디자인 시안 연결 대기 중</p>
+      <div class="base-grid">
+        <div class="field">
+          <label>노임구분</label>
+          <select id="growthWageType">
+            <option value="DAILY">일급</option>
+            <option value="MONTHLY">월급</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>비교 시작월</label>
+          <input type="month" id="growthFromMonth">
+        </div>
+        <div class="field">
+          <label>비교 종료월</label>
+          <input type="month" id="growthToMonth">
+        </div>
+      </div>
+      <button id="growthBtn" class="btn primary">조회</button>
+      <div id="growthError" class="login-error"></div>
+      <div id="growthResult" class="stat-grid hidden" style="margin-top: 14px;">
+        <div class="stat-tile"><span class="stat-label" id="growthFromLabel"></span><span class="stat-value" id="growthFromAvg"></span></div>
+        <div class="stat-tile"><span class="stat-label" id="growthToLabel"></span><span class="stat-value" id="growthToAvg"></span></div>
+        <div class="stat-tile"><span class="stat-label">증감률</span><span class="stat-value" id="growthPct"></span></div>
+      </div>
     </div>
+
     <div class="card">
       <h2 class="section-title">데이터 전처리 업로드</h2>
       <div class="field">
@@ -54,7 +169,9 @@
     </div>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="./api.js"></script>
   <script src="./admin.js"></script>
+  <script src="./wageCheck.js"></script>
 </body>
 </html>
