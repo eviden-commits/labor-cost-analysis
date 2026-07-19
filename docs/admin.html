@@ -136,10 +136,9 @@
       </div>
       <button id="growthBtn" class="btn primary">조회</button>
       <div id="growthError" class="login-error"></div>
-      <div id="growthResult" class="stat-grid hidden" style="margin-top: 14px;">
-        <div class="stat-tile"><span class="stat-label" id="growthFromLabel"></span><span class="stat-value" id="growthFromAvg"></span></div>
-        <div class="stat-tile"><span class="stat-label" id="growthToLabel"></span><span class="stat-value" id="growthToAvg"></span></div>
-        <div class="stat-tile"><span class="stat-label">증감률</span><span class="stat-value" id="growthPct"></span></div>
+      <div id="growthResult" class="hidden" style="margin-top: 14px;">
+        <p id="growthSummary" class="muted" style="font-weight: 800;"></p>
+        <canvas id="growthChart" height="120"></canvas>
       </div>
     </div>
 

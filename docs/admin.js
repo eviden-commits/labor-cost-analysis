@@ -127,6 +127,8 @@ async function loadTrend() {
   }
 }
 
+let growthChart = null;
+
 async function loadGrowth() {
   const wageType = document.getElementById('growthWageType').value;
   const fromMonth = document.getElementById('growthFromMonth').value;
@@ -153,12 +155,32 @@ async function loadGrowth() {
 
     const data = res.data;
     document.getElementById('growthResult').classList.remove('hidden');
-    document.getElementById('growthFromLabel').innerText = data.fromMonth + ' 평균 (' + data.fromCount + '명)';
-    document.getElementById('growthFromAvg').innerText = formatWon(data.fromAvg);
-    document.getElementById('growthToLabel').innerText = data.toMonth + ' 평균 (' + data.toCount + '명)';
-    document.getElementById('growthToAvg').innerText = formatWon(data.toAvg);
-    document.getElementById('growthPct').innerText =
-      data.growthPct === null ? '비교 불가' : (data.growthPct > 0 ? '+' : '') + data.growthPct + '%';
+
+    const pctText = data.growthPct === null ? '비교 불가' : (data.growthPct > 0 ? '+' : '') + data.growthPct + '%';
+    document.getElementById('growthSummary').innerText =
+      data.series[0].yearMonth + ' → ' + data.series[data.series.length - 1].yearMonth + ' 평균 증감률: ' + pctText;
+
+    const ctx = document.getElementById('growthChart');
+    if (growthChart) growthChart.destroy();
+    growthChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: data.series.map((s) => s.yearMonth),
+        datasets: [{
+          label: '평균 급여 (원)',
+          data: data.series.map((s) => s.avg),
+          borderColor: '#003a70',
+          backgroundColor: 'rgba(0, 58, 112, 0.12)',
+          fill: true,
+          tension: 0.2,
+          spanGaps: true
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: { y: { ticks: { callback: (v) => formatWon(v) } } }
+      }
+    });
   } catch (err) {
     errorBox.innerText = err.message;
   }
